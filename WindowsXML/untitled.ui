@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RocketSimWindow</class>
+ <widget class="QMainWindow" name="RocketSimWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>346</width>
+    <height>295</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>RocketSim</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QSlider" name="verticalSlider">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>6</y>
+      <width>16</width>
+      <height>84</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView">
+    <property name="geometry">
+     <rect>
+      <x>66</x>
+      <y>6</y>
+      <width>271</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>230</y>
+      <width>56</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="verticalSlider_2">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>130</y>
+      <width>16</width>
+      <height>84</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>346</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuSymulacja">
+    <property name="title">
+     <string>Plik</string>
+    </property>
+    <addaction name="actionZapisz"/>
+    <addaction name="actionWczytaj"/>
+    <addaction name="separator"/>
+    <addaction name="actionWyj_cie"/>
+   </widget>
+   <widget class="QMenu" name="menuEdytor_poziom_w">
+    <property name="title">
+     <string>Tryb</string>
+    </property>
+    <addaction name="actionSymulacja"/>
+    <addaction name="actionEdytor_Poziom_w"/>
+   </widget>
+   <widget class="QMenu" name="menuO_Programie">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="title">
+     <string>O Programie</string>
+    </property>
+   </widget>
+   <addaction name="menuSymulacja"/>
+   <addaction name="menuEdytor_poziom_w"/>
+   <addaction name="menuO_Programie"/>
+  </widget>
+  <action name="actionSymulacja">
+   <property name="text">
+    <string>Symulacja</string>
+   </property>
+  </action>
+  <action name="actionEdytor_Poziom_w">
+   <property name="text">
+    <string>Edytor Poziomów</string>
+   </property>
+  </action>
+  <action name="actionWczytaj">
+   <property name="text">
+    <string>Wczytaj</string>
+   </property>
+  </action>
+  <action name="actionZapisz">
+   <property name="text">
+    <string>Zapisz</string>
+   </property>
+  </action>
+  <action name="actionWyj_cie">
+   <property name="text">
+    <string>Wyjście</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
