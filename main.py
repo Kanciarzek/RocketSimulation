@@ -1,10 +1,13 @@
-from PyQt5 import QtWidgets
-import window
-from math import sqrt
+import math
 
+from PyQt5 import QtWidgets
+from math import sqrt
 import numpy as np
+import window
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
+import pygame
+import pygame.gfxdraw
 
 
 class Planet:
@@ -21,58 +24,73 @@ class Planet:
 G = 6.61e-5
 
 
-# function that returns dy/dt
 def model(y, t, planets: [Planet]):
     posX, posY, vx, vy = y
     if any(planet.is_inside(posX, posY) for planet in planets):
         return [0, 0, -vx, -vy]
     res1 = sum(
-        G * planet.mass * (planet.x - posX) / (sqrt((posX - planet.x) ** 2 + (posY - planet.y) ** 2)) for planet in
+        G * planet.mass * (planet.x - posX) / (sqrt((posX - planet.x) ** 2 + (posY - planet.y) ** 2)) ** 3 for planet in
         planets)
     res2 = sum(
-        G * planet.mass * (planet.y - posY) / (sqrt((posX - planet.x) ** 2 + (posY - planet.y) ** 2)) for planet in
+        G * planet.mass * (planet.y - posY) / (sqrt((posX - planet.x) ** 2 + (posY - planet.y) ** 2)) ** 3 for planet in
         planets)
     return [vx, vy, res1, res2]
 
 
-# initial condition
-y0 = [0, 0, 10, 0]
+def main():
+    pygame.init()
+    pygame.display.set_caption("Rocket simulation")
+    screen = pygame.display.set_mode((500, 500))
+    rocket = pygame.transform.scale(pygame.image.load('img/g3.png'), (32, 32))
+    rocket_rect = rocket.get_rect()
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    cur_time = 0
+    clock = pygame.time.Clock()
+    running = True
 
-# time points
-t = np.linspace(0, 2000, num=2000)
+    # initial condition
+    y0 = [0, 50, 0, 0]
+    max_time = 100000
+    t = np.linspace(0, max_time, num=max_time)
+    planets = [Planet(10000, 300, 50, 5), Planet(2000, 150, 100, 5)]
+    # solve ODE
+    solution = odeint(model, y0, t, args=(planets,))
+    Xs = solution[:, 0]
+    Ys = solution[:, 1]
 
-planets = [Planet(1000, 50, 50, 5), Planet(2000, 150, 100, 5)]
+    points = []
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        screen.fill(white)
+        lastX = Xs[cur_time - 20]
+        lastY = Ys[cur_time - 20]
+        x = Xs[cur_time]
+        y = Ys[cur_time]
+        rotate_degree = math.degrees(math.atan((x - lastX) / (y - lastY))) if lastY - y != 0 else 0
+        if lastY < y:
+            rotate_degree += 180
+        points.append((x, y))
+        if len(points) > 1:
+            pygame.draw.lines(screen, black, False, points)
+        temp_rocket = pygame.transform.rotozoom(rocket, rotate_degree, 1)
+        rocket_rect = temp_rocket.get_rect(center=rocket_rect.center)
+        rocket_rect.centerx = x
+        rocket_rect.centery = y
+        for planet in planets:
+            pygame.gfxdraw.aacircle(screen, planet.x, planet.y, planet.r, black)
+        screen.blit(temp_rocket, rocket_rect)
+        if cur_time + 10 >= max_time:
+            points = []
+        cur_time = (cur_time + 10) % max_time
+        pygame.display.update()
+        clock.tick(100)
 
-# solve ODE
-solution = odeint(model, y0, t, args=(planets,))
 
-# plot results
-plt.plot(t, solution[:, 0])
-plt.xlabel('time')
-plt.ylabel('x(t)')
-plt.show()
-
-plt.plot(t, solution[:, 1])
-plt.xlabel('time')
-plt.ylabel('y(t)')
-plt.show()
-
-plt.plot(t, solution[:, 2])
-plt.xlabel('time')
-plt.ylabel('vx(t)')
-plt.show()
-
-plt.plot(t, solution[:, 3])
-plt.xlabel('time')
-plt.ylabel('vy(t)')
-plt.show()
-
-plt.plot(solution[:, 0], solution[:, 1])
-fig = plt.gcf()
-ax = fig.gca()
-for planet in planets:
-    ax.add_artist(plt.Circle((planet.x, planet.y), planet.r, color='r'))
-plt.show()
+if __name__ == "__main__":
+    main()
 
 # if __name__ == "__main__":
 #     import sys
