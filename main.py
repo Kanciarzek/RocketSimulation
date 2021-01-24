@@ -3,11 +3,11 @@ import sys
 from math import sqrt
 from PyQt5.QtWidgets import QWidget, QAction, QMessageBox, QInputDialog, QLineEdit, QLabel, QSlider, QPushButton, \
     QMenuBar, QMenu, QMainWindow, QApplication, QGridLayout
-from qtconsole.qt import QtGui, QtCore
+from PyQt5 import QtGui, QtCore
 from scipy.integrate import odeint
 import pygame
 import pygame.gfxdraw
-
+import numpy as np
 
 class Planet:
     def __init__(self, mass: float, x: int, y: int, r: int):
@@ -29,6 +29,10 @@ class Globals:
     init_v = 0
     state = ""
     planets = [Planet(10000, 300, 50, 5), Planet(2000, 150, 100, 15)]
+    ksis_x = np.array([2,8,10]) * 100
+    ksis_y = np.array([7,4,9])
+    ux_0 = 1
+    uy_0 = 1
 
 
 def parse_planets(string: str):
@@ -48,15 +52,20 @@ def planets_to_string(planets: [Planet]):
 
 def model(y, t, planets: [Planet]):
     posX, posY, vx, vy = y
+
     if any(planet.is_inside(posX, posY) for planet in planets):
         return [0, 0, -vx, -vy]
-    res1 = sum(
+    dvx = sum(
         Globals.G * planet.mass * (planet.x - posX) / (sqrt((posX - planet.x) ** 2 + (posY - planet.y) ** 2)) ** 3 for
         planet in planets)
-    res2 = sum(
+    dvy = sum(
         Globals.G * planet.mass * (planet.y - posY) / (sqrt((posX - planet.x) ** 2 + (posY - planet.y) ** 2)) ** 3 for
-        planet in planets)
-    return [vx, vy, res1, res2]
+        planet in planets) + 0.0001*u(t)
+    return [vx, vy, dvx, dvy]
+
+
+def u(t):
+     return (-1) ** np.argmin(np.abs(np.cumsum(Globals.ksis_x) - t))
 
 
 class ImageWidget(QWidget):
@@ -164,22 +173,16 @@ class Ui_RocketSimWindow(object):
         self.actionSymulacja = QAction(RocketSimWindow)
         self.actionSymulacja.setObjectName("actionSymulacja")
         self.actionSymulacja.triggered.connect(ChangePlanetsWindow)
-        self.actionEdytor_Poziom_w = QAction(RocketSimWindow)
-        self.actionEdytor_Poziom_w.setEnabled(False)
-        self.actionEdytor_Poziom_w.setObjectName("actionEdytor_Poziom_w")
-        # self.actionWczytaj = QtWidgets.QAction(RocketSimWindow)
-        # self.actionWczytaj.setObjectName("actionWczytaj")
-        # self.actionZapisz = QtWidgets.QAction(RocketSimWindow)
-        # self.actionZapisz.setObjectName("actionZapisz")
+        # self.actionEdytor_Poziom_w = QAction(RocketSimWindow)
+        # self.actionEdytor_Poziom_w.setEnabled(False)
+        # self.actionEdytor_Poziom_w.setObjectName("actionEdytor_Poziom_w")
         self.actionWyj_cie = QAction(RocketSimWindow)
         self.actionWyj_cie.setObjectName("actionWyj_cie")
         self.actionWyj_cie.triggered.connect(self.quit)
-        # self.menuSymulacja.addAction(self.actionZapisz)
-        # self.menuSymulacja.addAction(self.actionWczytaj)
         self.menuSymulacja.addSeparator()
         self.menuSymulacja.addAction(self.actionWyj_cie)
         self.menuEdytor_poziom_w.addAction(self.actionSymulacja)
-        self.menuEdytor_poziom_w.addAction(self.actionEdytor_Poziom_w)
+        # self.menuEdytor_poziom_w.addAction(self.actionEdytor_Poziom_w)
         self.menubar.addAction(self.menuSymulacja.menuAction())
         self.menubar.addAction(self.menuEdytor_poziom_w.menuAction())
         oprogAct = QAction("O programie", self.centralwidget)
@@ -200,9 +203,7 @@ class Ui_RocketSimWindow(object):
         self.menuSymulacja.setTitle(_translate("RocketSimWindow", "Plik"))
         self.menuEdytor_poziom_w.setTitle(_translate("RocketSimWindow", "Edycja"))
         self.actionSymulacja.setText(_translate("RocketSimWindow", "Planety"))
-        self.actionEdytor_Poziom_w.setText(_translate("RocketSimWindow", "---"))
-        # self.actionWczytaj.setText(_translate("RocketSimWindow", "Wczytaj"))
-        # self.actionZapisz.setText(_translate("RocketSimWindow", "Zapisz"))
+        # self.actionEdytor_Poziom_w.setText(_translate("RocketSimWindow", "---"))
         self.actionWyj_cie.setText(_translate("RocketSimWindow", "Wyjście"))
 
 
